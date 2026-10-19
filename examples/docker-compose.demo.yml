@@ -1,0 +1,32 @@
+# Demo apps สำหรับทดสอบ routing โดยไม่ต้องมี app จริง
+# ใช้ traefik/whoami (echo hostname + headers กลับมา) ฟังที่ port 3000 ให้ตรงกับ upstream default
+#
+# วิธีใช้:
+#   1. docker compose up -d --build          # up gateway ก่อน
+#   2. docker compose -f examples/docker-compose.demo.yml up -d
+#   3. เปิด https://testpath.shopsthai.com  (TLS ที่ external proxy)
+#      - /admin/   → whoami "admin"
+#      - /pos/     → whoami "pos" (hostname หมุนเวียน 3 replica)
+#      - /account/ → whoami "account"
+
+services:
+  admin:
+    image: traefik/whoami
+    command: ["--port=3000", "--name=admin"]
+
+  pos:
+    image: traefik/whoami
+    command: ["--port=3000", "--name=pos"]
+    deploy:
+      replicas: 3
+
+  account:
+    image: traefik/whoami
+    command: ["--port=3000", "--name=account"]
+
+# ทุก service ติด default network อัตโนมัติ = proxy-network
+# service name ใช้เป็น DNS alias ได้เลย (admin / pos / account) ไม่ต้องตั้ง aliases เพิ่ม
+networks:
+  default:
+    external: true
+    name: proxy-network

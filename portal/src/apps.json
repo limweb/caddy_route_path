@@ -1,0 +1,21 @@
+{
+  "title": "Internal Apps",
+  "subtitle": "จำแค่ domain เดียว เลือกแอปจากหน้านี้",
+  "apps": [
+    {
+      "name": "Admin",
+      "path": "/admin/",
+      "description": "ระบบจัดการหลังบ้าน"
+    },
+    {
+      "name": "POS",
+      "path": "/pos/",
+      "description": "ระบบขายหน้าร้าน"
+    },
+    {
+      "name": "Account",
+      "path": "/account/",
+      "description": "ระบบบัญชีผู้ใช้"
+    }
+  ]
+}

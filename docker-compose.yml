@@ -1,0 +1,27 @@
+services:
+  gateway:
+    build: .
+    restart: unless-stopped
+    # ports:
+    #   - "80:80"
+    #   - "443:443"
+    labels:
+      - "com.docker.compose.project=testpath"
+      - "virtual.host=testpath.shopsthai.com"
+      - "virtual.port=80"
+      - "virtual.tls-email=limweb@hotmail.com" # ssl is now on
+    # env ทั้งหมดมาจาก .env (copy จาก .env.example แล้วแก้ค่า)
+    env_file: .env
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:
+
+
+networks:
+  default:
+    external: true
+    name: proxy-network

@@ -1,0 +1,62 @@
+# Domain หลัก — ตั้งผ่าน env DOMAIN ใน docker-compose
+# upstream ของแต่ละ app ตั้งผ่าน env ได้ เช่น POS_UPSTREAM=pos:3000
+
+{
+	# TLS ถูก terminate ที่ external proxy (proxy-network + virtual.host labels)
+	# Caddy serve HTTP อย่างเดียวบน :80 — ป้องกัน http→https redirect loop
+	# ถ้าวันหลังให้ Caddy ถือ TLS เอง (publish 80/443) ให้ลบบรรทัดนี้ออก
+	auto_https off
+}
+
+{$DOMAIN:localhost} {
+	encode gzip
+
+	# /admin → /admin/ กันเคสพิมพ์ไม่มี trailing slash แล้วตกไปที่ portal
+	redir /admin /admin/ 308
+	redir /pos /pos/ 308
+	redir /account /account/ 308
+
+	# path-based routing: strip prefix แล้วส่งต่อให้ app ที่ทำงานที่ "/"
+	# ถ้า app ไหนตั้ง base path แล้วรับ prefix เองได้ ให้เปลี่ยน handle_path → handle
+	handle_path /admin/* {
+		reverse_proxy {$ADMIN_UPSTREAM:admin:3000}
+	}
+
+	handle_path /pos/* {
+		reverse_proxy {$POS_UPSTREAM:pos:3000} {
+			# Docker DNS round-robin เลือก replica ให้อัตโนมัติ
+			# ถ้า pos ใช้ in-memory session ให้เปิด sticky:
+			# lb_policy cookie
+			# health_uri /healthz
+		}
+	}
+
+	handle_path /account/* {
+		reverse_proxy {$ACCOUNT_UPSTREAM:account:3000}
+	}
+
+	# root path → Vue portal (SPA fallback)
+	handle {
+		root * /srv/portal
+		try_files {path} /index.html
+		file_server
+	}
+
+	log {
+		output stdout
+	}
+}
+
+# --- ช่วง migrate: เก็บ subdomain เดิมไว้ทำงานคู่กัน ---
+# เมื่อทุก app ใช้ path ได้แล้ว ค่อยลบ block เหล่านี้ออก
+admin.{$DOMAIN} {
+	reverse_proxy {$ADMIN_UPSTREAM:admin:3000}
+}
+
+pos.{$DOMAIN} {
+	reverse_proxy {$POS_UPSTREAM:pos:3000}
+}
+
+account.{$DOMAIN} {
+	reverse_proxy {$ACCOUNT_UPSTREAM:account:3000}
+}
