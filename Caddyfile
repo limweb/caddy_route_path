@@ -8,7 +8,7 @@
 	auto_https off
 }
 
-{$DOMAIN:localhost} {
+:80 {
 	encode gzip
 
 	# /admin → /admin/ กันเคสพิมพ์ไม่มี trailing slash แล้วตกไปที่ portal
