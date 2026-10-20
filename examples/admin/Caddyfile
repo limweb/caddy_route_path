@@ -1,0 +1,7 @@
+# serve Vue SPA บน :3000 (ตรงกับ upstream default admin:3000 ของ gateway)
+# try_files → index.html เพื่อให้ deep-link /test1 /test2 /test3 ไม่ 404
+:3000 {
+	root * /srv
+	try_files {path} /index.html
+	file_server
+}

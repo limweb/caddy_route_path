@@ -1,3 +1,6 @@
 node_modules/
 portal/dist/
+examples/admin/dist/
+examples/pos/dist/
+examples/account/dist/
 .env

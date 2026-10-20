@@ -1,28 +1,26 @@
 # Demo apps สำหรับทดสอบ routing โดยไม่ต้องมี app จริง
-# ใช้ traefik/whoami (echo hostname + headers กลับมา) ฟังที่ port 3000 ให้ตรงกับ upstream default
+# ทุก app = Vue SPA ตัวอย่าง (build จาก examples/<name>) — ใช้ทดสอบ base path + SPA fallback
+# pos ยัง scale 3 replica ทดสอบ load balance ผ่าน Docker DNS ด้วย
 #
 # วิธีใช้:
 #   1. docker compose up -d --build          # up gateway ก่อน
-#   2. docker compose -f examples/docker-compose.demo.yml up -d
+#   2. docker compose -f examples/docker-compose.demo.yml up -d --build
 #   3. เปิด https://testpath.shopsthai.com  (TLS ที่ external proxy)
-#      - /admin/   → whoami "admin"
-#      - /pos/     → whoami "pos" (hostname หมุนเวียน 3 replica)
-#      - /account/ → whoami "account"
+#      - /admin/   → Vue SPA (route /test1 /test2 /test3)
+#      - /pos/     → Vue SPA เหมือนกัน (3 replicas)
+#      - /account/ → Vue SPA เหมือนกัน
 
 services:
   admin:
-    image: traefik/whoami
-    command: ["--port=3000", "--name=admin"]
+    build: ./admin
 
   pos:
-    image: traefik/whoami
-    command: ["--port=3000", "--name=pos"]
+    build: ./pos
     deploy:
       replicas: 3
 
   account:
-    image: traefik/whoami
-    command: ["--port=3000", "--name=account"]
+    build: ./account
 
 # ทุก service ติด default network อัตโนมัติ = proxy-network
 # service name ใช้เป็น DNS alias ได้เลย (admin / pos / account) ไม่ต้องตั้ง aliases เพิ่ม
