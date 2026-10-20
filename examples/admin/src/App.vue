@@ -13,6 +13,7 @@ const currentPath = computed(() => route.fullPath)
       <router-link to="/test1">test1</router-link>
       <router-link to="/test2">test2</router-link>
       <router-link to="/test3">test3</router-link>
+      <a href="/" class="home">Home</a>
     </nav>
     <p class="path">current path: {{ currentPath }}</p>
     <router-view />
@@ -49,6 +50,11 @@ nav a {
 nav a.router-link-active {
   background: #3451b2;
   color: #fff;
+}
+nav a.home {
+  margin-left: auto;
+  background: #e8e8e8;
+  color: #444;
 }
 .path {
   font-family: ui-monospace, monospace;
